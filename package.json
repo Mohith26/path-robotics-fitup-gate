@@ -1,0 +1,1 @@
+{"name":"path-robotics-fitup-gate","private":true,"type":"module","scripts":{"test":"node --test test/*.test.mjs","data":"node data/generate.mjs"}}

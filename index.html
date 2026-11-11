@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fit-up Gate · JobBuilder (concept)</title>
+  <meta name="description" content="Unofficial concept: certified fit-up envelopes, risk-targeted NDT and fixture-drift alarms from Obsidian's per-seam pre-weld scans.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>window.__errs = []; addEventListener('error', (e) => __errs.push(String(e.message))); addEventListener('unhandledrejection', (e) => __errs.push(String(e.reason)));</script>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/path-robotics-black.svg" alt="Path Robotics">
+      <span class="product">JobBuilder™</span>
+      <nav class="modes" aria-label="Job views">
+        <button type="button" id="mode-features">Features</button>
+        <button type="button" id="mode-gate" aria-current="page">Fit-up Gate <span class="new">NEW</span></button>
+      </nav>
+    </div>
+    <div class="filepill" aria-label="Job">
+      <span class="name" id="jobname">&nbsp;</span>
+      <span class="status">Status <b id="jobstatus">&nbsp;</b></span>
+    </div>
+    <div class="topright">
+      <button class="iconbtn" id="btn-keys" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)"></button>
+      <div class="user" aria-label="Signed in user">
+        <span id="usericon"></span>
+        <div class="who"><b>Sam Ortega</b><span>Customer Engineer</span><span>Path Robotics</span></div>
+        <span class="caret" id="usercaret"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout" id="layout">
+    <aside class="panel left" aria-label="Feature list" id="left">
+      <div class="skel" style="width:40%"></div><div class="skel"></div><div class="skel" style="width:70%"></div><div class="skel"></div><div class="skel" style="width:85%"></div>
+    </aside>
+    <section class="viewport" id="viewport" aria-label="3D part view">
+      <canvas id="cv" aria-label="Part model with scanned seams colored by gate decision" role="img"></canvas>
+      <div class="hint" id="hint"></div>
+      <div class="vp-tl" id="vptl" aria-live="polite"></div>
+      <button class="iconbtn gear" id="btn-settings" aria-label="Gate settings" title="Gate settings"></button>
+      <div class="legend" id="legend"></div>
+    </section>
+    <div class="drawer" id="drawer" role="dialog" aria-label="Feature detail" aria-modal="false"></div>
+    <aside class="panel right" aria-label="Fit-up gate queue" id="right">
+      <div class="skel" style="width:50%"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:60%"></div>
+    </aside>
+  </main>
+  <div class="foot">Unofficial concept demo by Mohith Gajjela. Not affiliated with Path Robotics. Synthetic data.</div>
+
+  <div class="scrim" id="scrim"><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{
+ "seed": 20261111,
+ "defaults": {
+  "tau": 0.01,
+  "delta": 0.05,
+  "spotFraction": 0.05
+ },
+ "audit": {
+  "parts": 600,
+  "firstPassYield": 0.955
+ },
+ "envelope": {
+  "FT516": {
+   "gStarMm": 1.8,
+   "gStarIn": 0.071,
+   "trueLimitMm": 2.464,
+   "fleetSeams": 160000,
+   "fleetDefects": 4657
+  },
+  "FT14": {
+   "gStarMm": 1.4,
+   "gStarIn": 0.055,
+   "trueLimitMm": 2.007,
+   "fleetSeams": 60000,
+   "fleetDefects": 2578
+  },
+  "FL38": {
+   "gStarMm": 1.8,
+   "gStarIn": 0.071,
+   "trueLimitMm": 2.743,
+   "fleetSeams": 40000,
+   "fleetDefects": 775
+  }
+ },
+ "ndt": {
+  "shifts": 1000,
+  "parts": 12000,
+  "invisibleDefects": 161,
+  "visibleDefects": 214,
+  "firstPassYield": 0.9690833333333333,
+  "policies": {
+   "random": {
+    "caught": 5,
+    "catchShare": 0.031055900621118012,
+    "minutesPerPart": 7.834899999999841,
+    "escapesPer1000Parts": 13
+   },
+   "gapRule": {
+    "caught": 79,
+    "catchShare": 0.4906832298136646,
+    "minutesPerPart": 8.11804999999932,
+    "escapesPer1000Parts": 6.833333333333334
+   },
+   "gate": {
+    "caught": 86,
+    "catchShare": 0.5341614906832298,
+    "minutesPerPart": 7.802500000000408,
+    "escapesPer1000Parts": 6.25
+   },
+   "oracle": {
+    "caught": 85,
+    "catchShare": 0.5279503105590062,
+    "minutesPerPart": 7.830150000000573,
+    "escapesPer1000Parts": 6.333333333333333
+   }
+  }
+ },
+ "refit": {
+  "parts": 12000,
+  "code": {
+   "refitsPerPart": 0.01225,
+   "defectsPer100Parts": 3.0833333333333335,
+   "costPerPart": 13.37875
+  },
+  "gate": {
+   "refitsPerPart": 0.05316666666666667,
+   "defectsPer100Parts": 1.9666666666666666,
+   "costPerPart": 10.120833333333334
+  }
+ },
+ "drift": {
+  "reps": 300,
+  "onset": 150,
+  "driftMmPerPart": 0.008,
+  "cusum": {
+   "medianDelay": 43,
+   "p90Delay": 51,
+   "falseAlarmBeforeOnset": 0.006666666666666667
+  },
+  "shewhart3s": {
+   "medianDelay": 14,
+   "falseAlarmBeforeOnset": 0.9933333333333333
+  },
+  "partsUntilMeanLeavesEnvelope": 127
+ },
+ "headline": {
+  "gateCatchPct": 53,
+  "randomCatchPct": 3,
+  "gapRuleCatchPct": 49,
+  "gapRuleMinutesPerPart": 8.1,
+  "gateMinutesPerPart": 7.8,
+  "randomMinutesPerPart": 7.8,
+  "escapesCutPct": 52,
+  "cusumMedianDelay": 43,
+  "leadOverEnvelope": 84,
+  "certifiedGapFT516In": 0.071
+ }
+}

@@ -159,4 +159,5 @@ test('headline numbers are recomputed from the per-policy evaluation and the env
   }
   assert.ok(results.refit.gate.costPerPart < results.refit.code.costPerPart);
   assert.ok(results.drift.cusum.medianDelay < results.drift.partsUntilMeanLeavesEnvelope);
+  assert.ok(results.ndtDuringDrift.policies.gapRule.minutesPerPart > 1.5 * results.ndtDuringDrift.policies.gate.minutesPerPart, 'gap rule minutes balloon under drift');
 });

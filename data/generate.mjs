@@ -171,7 +171,7 @@ export function envelopes(job, tau = PARAMS.tau, delta = PARAMS.delta) {
   return out;
 }
 
-export function evaluateNdt(job, envs, features, shifts = 1000, seed = SEED + 1) {
+export function evaluateNdt(job, envs, features, shifts = 1000, seed = SEED + 1, driftMm = 0) {
   const rng = C.mulberry32(seed);
   const P = PARAMS;
   const pol = { random: { caught: 0, min: 0 }, gapRule: { caught: 0, min: 0 }, gate: { caught: 0, min: 0 }, oracle: { caught: 0, min: 0 } };
@@ -179,7 +179,7 @@ export function evaluateNdt(job, envs, features, shifts = 1000, seed = SEED + 1)
   for (let s = 0; s < shifts; s++) {
     const seams = [];
     for (let p = 0; p < P.partsPerShift; p++) {
-      const g = samplePart(rng, features);
+      const g = samplePart(rng, features, driftMm);
       let clean = true;
       features.forEach((f, i) => {
         if (g[i] > C.D11_MAX_MM) return; // refit by code in every policy
@@ -279,6 +279,8 @@ export function run() {
   const { job, hidden } = generate();
   const envs = envelopes(job);
   const ndt = evaluateNdt(job, envs, hidden.features);
+  // Same comparison while station C has drifted +0.6 mm (about 75 parts into a 0.008 mm/part drift).
+  const ndtDrift = evaluateNdt(job, envs, hidden.features, 500, SEED + 4, 0.6);
   const refit = evaluateRefit(job, envs, hidden.features);
   const drift = evaluateDrift(job, envs, hidden.features);
   const envelopeSummary = Object.fromEntries(Object.entries(envs).map(([cls, e]) => {
@@ -292,7 +294,7 @@ export function run() {
     defaults: { tau: PARAMS.tau, delta: PARAMS.delta, spotFraction: PARAMS.spotFraction },
     audit: { parts: job.job.auditParts, firstPassYield: r3(hidden.partsCleanAudit) },
     envelope: envelopeSummary,
-    ndt, refit, drift,
+    ndt, ndtDuringDrift: { driftMm: 0.6, ...ndtDrift }, refit, drift,
     headline: {
       gateCatchPct: Math.round(g.gate.catchShare * 100),
       randomCatchPct: Math.round(g.random.catchShare * 100),
@@ -301,6 +303,10 @@ export function run() {
       gateMinutesPerPart: Math.round(g.gate.minutesPerPart * 10) / 10,
       randomMinutesPerPart: Math.round(g.random.minutesPerPart * 10) / 10,
       escapesCutPct: Math.round((1 - g.gate.escapesPer1000Parts / g.random.escapesPer1000Parts) * 100),
+      driftGapRuleMinutesPerPart: Math.round(ndtDrift.policies.gapRule.minutesPerPart * 10) / 10,
+      driftGateMinutesPerPart: Math.round(ndtDrift.policies.gate.minutesPerPart * 10) / 10,
+      driftGapRuleCatchPct: Math.round(ndtDrift.policies.gapRule.catchShare * 100),
+      driftGateCatchPct: Math.round(ndtDrift.policies.gate.catchShare * 100),
       cusumMedianDelay: drift.cusum.medianDelay,
       leadOverEnvelope: drift.partsUntilMeanLeavesEnvelope - drift.cusum.medianDelay,
       certifiedGapFT516In: envelopeSummary.FT516.gStarIn,

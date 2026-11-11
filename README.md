@@ -42,8 +42,9 @@ The simulated cell has a part-level first-pass yield of 96.9% after code-mandate
 | Drift of +0.008 mm per part on station C (300 runs): CUSUM median delay | 43 parts (p90 51), 0.7% false alarms in the 150 in-control parts before onset |
 | Same drift, naive 3-sigma individuals chart | 99% of runs false-alarm before the drift starts (scan gaps have heavy tails) |
 | Lead time: CUSUM alarm vs mean gap leaving the envelope | 84 parts earlier |
+| NDT while station C has drifted +0.6 mm (500 shifts): 1/16 in gap rule vs gate | 15.1 vs 7.8 min per part; catches 58% vs 51% |
 
-The gate matches the oracle because the isotonic risk ranking is essentially the true ranking; the realistic gap to a fixed 1/16 in rule is small in steady state (+4 points at 4% fewer minutes). The gate's real advantages are that its minutes are fixed by budget (a gap rule's minutes balloon when fit-up drifts), it is joint-class aware, and the envelope and drift alarm are evidence a customer quality team can sign.
+The gate matches the oracle because the isotonic risk ranking is essentially the true ranking; the realistic gap to a fixed 1/16 in rule is small in steady state (+4 points at 4% fewer minutes). The gate's real advantages are that its minutes are fixed by budget (the gap rule's NDT minutes nearly double once fit-up drifts, see table), it is joint-class aware, and the envelope and drift alarm are evidence a customer quality team can sign.
 
 ## The app
 

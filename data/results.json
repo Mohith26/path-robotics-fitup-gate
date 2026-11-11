@@ -65,6 +65,40 @@
    }
   }
  },
+ "ndtDuringDrift": {
+  "driftMm": 0.6,
+  "shifts": 500,
+  "parts": 6000,
+  "invisibleDefects": 92,
+  "visibleDefects": 141,
+  "firstPassYield": 0.9625,
+  "policies": {
+   "random": {
+    "caught": 3,
+    "catchShare": 0.03260869565217391,
+    "minutesPerPart": 8.03769999999995,
+    "escapesPer1000Parts": 14.833333333333334
+   },
+   "gapRule": {
+    "caught": 53,
+    "catchShare": 0.5760869565217391,
+    "minutesPerPart": 15.05009999999933,
+    "escapesPer1000Parts": 6.5
+   },
+   "gate": {
+    "caught": 47,
+    "catchShare": 0.5108695652173914,
+    "minutesPerPart": 7.832200000000089,
+    "escapesPer1000Parts": 7.5
+   },
+   "oracle": {
+    "caught": 49,
+    "catchShare": 0.532608695652174,
+    "minutesPerPart": 7.834700000000063,
+    "escapesPer1000Parts": 7.166666666666667
+   }
+  }
+ },
  "refit": {
   "parts": 12000,
   "code": {
@@ -101,6 +135,10 @@
   "gateMinutesPerPart": 7.8,
   "randomMinutesPerPart": 7.8,
   "escapesCutPct": 52,
+  "driftGapRuleMinutesPerPart": 15.1,
+  "driftGateMinutesPerPart": 7.8,
+  "driftGapRuleCatchPct": 58,
+  "driftGateCatchPct": 51,
   "cusumMedianDelay": 43,
   "leadOverEnvelope": 84,
   "certifiedGapFT516In": 0.071

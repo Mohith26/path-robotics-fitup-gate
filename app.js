@@ -153,13 +153,13 @@ function renderLeft() {
   const rows = fs.map((f) => {
     const s = part.seams[f.i];
     const state = st.mode === 'gate' ? seamState(s) : 'none';
-    const dotc = state === 'ok' ? 'ok' : state === 'ndt' || state === 'outside' ? 'ndt' : state === 'refit' ? 'refit' : '';
+    const dotc = state === 'none' ? '' : state;
     const drift = f.alarm >= 0 && st.mode === 'gate';
     return `<div class="row" role="option" tabindex="0" aria-selected="${st.feature === f.id}" data-f="${f.id}" title="${esc(f.name)}">
       <input type="checkbox" aria-label="Select ${f.id}" data-chk="${f.id}" ${st.checked.includes(f.id) ? 'checked' : ''}>
       <span class="id">${f.id}</span>
       <span class="len">${f.lengthIn.toFixed(2)}"</span>
-      <span class="gap">${st.mode === 'gate' ? `${C.toIn(s.gap).toFixed(3)}" <span class="dot ${drift ? 'drift' : dotc}" title="${drift ? 'Drift alarm' : LABEL[state]}"></span>` : '0°'}</span>
+      <span class="gap">${st.mode === 'gate' ? `${drift ? '<span class="drifttag" title="CUSUM drift alarm">drift</span>' : ''}${C.toIn(s.gap).toFixed(3)}" <span class="dot ${dotc}" title="${LABEL[state]}"></span>` : '0°'}</span>
       <span class="chev">${I.chev(14)}</span></div>`;
   }).join('');
   $('left').innerHTML = `
@@ -207,9 +207,9 @@ function renderRight() {
     <div class="gatehead"><div class="t"><h2>Fit-up Gate</h2><button class="btn ghost small" id="export" title="Export shift decisions (E)">${I.dl(14)} Export</button></div>
       <div class="sub">${esc(job.job.cell)} · last ${SHIFT} parts · ${fmtDay(D.parts[0].at)}</div></div>
     <div class="kpis">
-      <div class="kpi ${refitSeams ? 'warn' : ''}"><div class="v">${refitSeams}</div><div class="l">seams to refit before weld</div></div>
-      <div class="kpi"><div class="v">${D.plan.chosen.length}</div><div class="l">NDT seams · ${Math.round(D.plan.minutes)} of ${Math.round(D.budget)} min</div></div>
-      <div class="kpi"><div class="v">${Math.round(share * 100)}%</div><div class="l">of expected hidden defects covered</div></div>
+      <div class="kpi ${refitSeams ? 'warn' : ''}"><div class="v">${refitSeams}</div><div class="l">seam${refitSeams === 1 ? '' : 's'} to refit</div></div>
+      <div class="kpi"><div class="v">${D.plan.chosen.length}</div><div class="l">NDT seams · ${Math.round(D.plan.minutes)}/${Math.round(D.budget)} min</div></div>
+      <div class="kpi" title="Expected scan-invisible defects the NDT plan targets, as a share of all expected in released and pending parts"><div class="v">${Math.round(share * 100)}%</div><div class="l">hidden-defect risk covered</div></div>
     </div>
     <div class="parts" role="listbox" aria-label="Scanned parts">${list}</div>
     <div class="gatefoot">
@@ -239,18 +239,18 @@ function envelopeSvg(f, gapMm) {
   for (const t of [0, 0.05, 0.1, 0.15, 0.2]) s += `<text x="${x(t * 25.4)}" y="${H - m.b + 14}" text-anchor="middle">${t.toFixed(2)}"</text>`;
   s += `<text x="${W - m.r}" y="${H - 3}" text-anchor="end">Scanned root gap</text>`;
   s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(e.tau)}" y2="${y(e.tau)}" stroke="#55595d" stroke-dasharray="3 3"/><text x="${W - m.r}" y="${y(e.tau) - 4}" text-anchor="end" style="fill:#55595d">Target ${pct(e.tau, e.tau < 0.01 ? 1 : 0)}</text>`;
-  const maxN = Math.max(...e.n);
-  for (let i = 0; i < e.n.length; i++) {
-    if (!e.n[i] || (i + 0.5) * bw > xMax) continue;
-    const r = 1.6 + 3.2 * Math.sqrt(e.n[i] / maxN);
-    s += `<circle cx="${x((i + 0.5) * bw)}" cy="${y(Math.max(e.rate[i], 1e-4))}" r="${r.toFixed(2)}" fill="#9aa0a6" fill-opacity=".55"><title>${(i * bw).toFixed(1)}-${((i + 1) * bw).toFixed(1)} mm: ${e.k[i]} / ${e.n[i]} defective</title></circle>`;
-  }
   const step = (arr, dash, col, wdt) => {
     let d = '';
     for (let i = 0; i < arr.length && i * bw < xMax; i++) d += `${i ? 'L' : 'M'}${x(i * bw).toFixed(1)},${y(arr[i]).toFixed(1)}L${x(Math.min(xMax, (i + 1) * bw)).toFixed(1)},${y(arr[i]).toFixed(1)}`;
     return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${wdt}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
   };
   s += step(e.upper, '5 3', '#157a90', 1.4) + step(e.iso, '', '#1b8ea6', 2);
+  const maxN = Math.max(...e.n);
+  for (let i = 0; i < e.n.length; i++) {
+    if (!e.n[i] || (i + 0.5) * bw > xMax) continue;
+    const r = 2.2 + 3 * Math.sqrt(e.n[i] / maxN);
+    s += `<circle cx="${x((i + 0.5) * bw)}" cy="${y(Math.max(e.rate[i], 1e-4))}" r="${r.toFixed(2)}" fill="#8e9296" fill-opacity=".75" stroke="#fff" stroke-width=".8"><title>${(i * bw).toFixed(1)}-${((i + 1) * bw).toFixed(1)} mm: ${e.k[i]} of ${e.n[i]} seams defective</title></circle>`;
+  }
   s += `<line x1="${x(e.gStar)}" x2="${x(e.gStar)}" y1="${m.t}" y2="${H - m.b}" stroke="#1b8ea6" stroke-width="1.5"/><text x="${x(e.gStar) - 4}" y="${m.t + 12}" text-anchor="end" style="fill:#157a90;font-weight:500">Certified ${C.toIn(e.gStar).toFixed(3)}"</text>`;
   if (gapMm != null) {
     const gx = x(Math.min(gapMm, xMax - 0.02));
@@ -334,7 +334,8 @@ function renderDrawer() {
       <div class="acts"><button class="iconbtn" id="dl-env" aria-label="Export envelope JSON" title="Export envelope JSON">${I.dl(17)}</button><button class="iconbtn" id="dclose" aria-label="Close feature" title="Close (Esc)">${I.x(18)}</button></div></div>
     <div class="dname">${esc(f.name)}</div>
     <div class="tabs" role="tablist">${tabs}</div>
-    <div class="dbody" role="tabpanel">${body}</div>`;
+    <div class="dbody" role="tabpanel">${body}</div>
+    ${tab === 'fitup' ? `<div class="dfoot"><button class="btn ghost" id="dl-env2">${I.dl(14)} Envelope JSON</button>${f.alarm >= 0 ? (st.ack[D.alarms[0].id] ? `<button class="btn ghost" data-unack="1">${I.undo(14)} Unflag drift</button>` : `<button class="btn primary" data-ack="1">Flag drift to fabrication</button>`) : `<button class="btn primary" id="dclose2">Done</button>`}</div>` : ''}`;
   dr.classList.add('open');
   dr.removeAttribute('aria-hidden');
 }
@@ -358,7 +359,7 @@ function renderOverlays() {
 }
 
 // ------------------------------------------------------------ 3D canvas (orthographic CAD view)
-const view = { yaw: -0.5, pitch: 0.86, zoom: 1, hover: null };
+const view = { yaw: -0.5, pitch: 0.86, zoom: 1, hover: null, focus: true };
 let geo = null;
 function buildGeo() {
   const faces = [];
@@ -393,7 +394,14 @@ function draw() {
   const leftPad = st.feature ? (parseFloat(getComputedStyle($('drawer')).width) - $('left').clientWidth) : 0;
   const usableW = W - Math.max(0, leftPad) - 40;
   scale = Math.min(usableW / (bx - ax), (H - 190) / (by - ay)) * 0.98 * view.zoom;
-  const ox = Math.max(0, leftPad) + 20 + usableW / 2 - ((ax + bx) / 2) * scale, oy = H / 2 + 8 - ((ay + by) / 2) * scale;
+  let cx = (ax + bx) / 2, cyy = (ay + by) / 2;
+  if (st.feature && view.focus) {
+    const f = featById(st.feature);
+    const r0 = rot(f.seam[0]), r1 = rot(f.seam[1]);
+    cx = (r0.sx + r1.sx) / 2 * 0.6 + cx * 0.4; cyy = (r0.sy + r1.sy) / 2 * 0.6 + cyy * 0.4;
+    scale *= 1.7;
+  }
+  const ox = Math.max(0, leftPad) + 20 + usableW / 2 - cx * scale, oy = H / 2 + 8 - cyy * scale;
   const P = (p) => { const r = rot(p); return [ox + r.sx * scale, oy + r.sy * scale, r.depth]; };
   const cy = Math.cos(view.yaw), sy = Math.sin(view.yaw), cp = Math.cos(view.pitch), sp = Math.sin(view.pitch);
   const toCam = (n) => { const xr = n[0] * cy - n[1] * sy, yr = n[0] * sy + n[1] * cy; return -(yr * cp) + n[2] * sp; };
@@ -561,7 +569,8 @@ function wire() {
       case 'sendback': return doSendBack();
       case 'reopen': delete st.status[st.part]; st.status[st.part] = 'pending'; save(); return renderAll();
       case 'export': return exportShift();
-      case 'dl-env': return exportEnvelope();
+      case 'dl-env': case 'dl-env2': return exportEnvelope();
+      case 'dclose2': st.feature = null; return renderAll();
       case 'btn-settings': return openSettings();
       case 'btn-keys': return openKeys();
       case 'sortdir': st.asc = !st.asc; return renderAll();
